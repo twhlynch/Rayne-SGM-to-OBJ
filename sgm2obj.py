@@ -19,7 +19,7 @@ def main():
 def read_sgm(filename):
     with open(filename, "rb") as file:
         # Read the file format version number
-        version = struct.unpack('<B L', file.read(5))
+        version = struct.unpack('<L B', file.read(5))
         print(version)
         # Read materials
         num_materials = struct.unpack('<B', file.read(1))[0]
