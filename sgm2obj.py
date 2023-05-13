@@ -32,7 +32,7 @@ def read_sgm(filename):
                     usage_hint = struct.unpack('<B', file.read(1))[0]
                     texname_len = struct.unpack('<H', file.read(2))[0] - 1
                     texname = struct.unpack(f'<{texname_len}s', file.read(texname_len))[0].decode("utf_8")
-                    file.seek(1, 1)  # skip null terminator
+                    file.seek(1, 1) # skip null terminator
             color_count = struct.unpack('<B', file.read(1))[0]
             for _ in range(color_count):
                 color_id = struct.unpack('<B', file.read(1))[0]
@@ -41,7 +41,8 @@ def read_sgm(filename):
         # Read meshes
         num_meshes = struct.unpack('<B', file.read(1))[0]
         vertices = []
-        indices = []
+        indices = [] 
+        index_offset = 0 # for multiple meshes
         for _ in range(num_meshes):
             mesh_id = struct.unpack('<B', file.read(1))[0]
             material_id = struct.unpack('<B', file.read(1))[0]
@@ -76,7 +77,8 @@ def read_sgm(filename):
                     index = struct.unpack('<I', file.read(4))[0]
                 else:
                     index = struct.unpack('<H', file.read(2))[0]
-                indices.append(index)
+                indices.append(index + index_offset)
+            index_offset = len(vertices)
     return [vertices, indices]
 
 def write_obj(vertices, indices, filename):
