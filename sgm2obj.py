@@ -9,7 +9,7 @@ def main():
     input_file = args.input_file
     output_file = args.output_file
     if args.output_file is None:
-        output_file = os.path.splitext(args.input_file)[0] + '.obj'
+        output_file = f'{os.path.splitext(args.input_file)[0]}.obj'
     else:
         output_file = args.output_file
 
@@ -84,13 +84,10 @@ def read_sgm(filename):
 def write_obj(vertices, indices, filename):
     with open(filename, 'w') as f:
         for v in vertices:
-            f.write('v {} {} {}\n'.format(v[0][0], v[0][1], v[0][2]))
-            f.write('vn {} {} {}\n'.format(v[1][0], v[1][1], v[1][2]))
+            f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
+            f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
         for i in range(0, len(indices), 3):
-            f.write('f {}//{} {}//{} {}//{}\n'.format(
-                indices[i]+1, indices[i]+1, 
-                indices[i+1]+1, indices[i+1]+1, 
-                indices[i+2]+1, indices[i+2]+1))
+            f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
 
 if __name__ == '__main__':
     main()
