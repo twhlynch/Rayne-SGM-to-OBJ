@@ -1,4 +1,4 @@
-import struct, os, argparse
+import struct, os, argparse, json, base64, pygltflib
 
 def main():
     parser = argparse.ArgumentParser(description='Convert SGM to OBJ format')
@@ -14,31 +14,40 @@ def main():
         output_file = args.output_file
 
     data = read_sgm(input_file)
-    write_obj(data[0], data[1], output_file)
+    write_obj(data[0], data[1], data[2], output_file)
 
 def read_sgm(filename):
     with open(filename, "rb") as file:
-        # Read the file format version number
         version = struct.unpack('<L B', file.read(5))
         print(version)
-        # Read materials
         num_materials = struct.unpack('<B', file.read(1))[0]
+        materials = []
         for _ in range(num_materials):
             material_id = struct.unpack('<B', file.read(1))[0]
             uv_count = struct.unpack('<B', file.read(1))[0]
+            uv_data = []
             for _ in range(uv_count):
                 image_count = struct.unpack('<B', file.read(1))[0]
+                images = []
                 for _ in range(image_count):
                     usage_hint = struct.unpack('<B', file.read(1))[0]
                     texname_len = struct.unpack('<H', file.read(2))[0] - 1
                     texname = struct.unpack(f'<{texname_len}s', file.read(texname_len))[0].decode("utf_8")
                     file.seek(1, 1) # skip null terminator
+                    images.append((texname, usage_hint))
+                uv_data.append(images)
             color_count = struct.unpack('<B', file.read(1))[0]
+            colors = []
             for _ in range(color_count):
                 color_id = struct.unpack('<B', file.read(1))[0]
                 color = struct.unpack('<ffff', file.read(16))
-        
-        # Read meshes
+                colors.append((color, color_id))
+
+            materials.append({
+                'material_id': material_id,
+                'uv_data': uv_data,
+                'colors': colors
+            })
         num_meshes = struct.unpack('<B', file.read(1))[0]
         vertices = []
         indices = [] 
@@ -79,13 +88,30 @@ def read_sgm(filename):
                     index = struct.unpack('<H', file.read(2))[0]
                 indices.append(index + index_offset)
             index_offset = len(vertices)
-    return [vertices, indices]
+    return [vertices, indices, materials]
 
-def write_obj(vertices, indices, filename):
+def write_obj(vertices, indices, materials, filename):
+    mtl_filename = os.path.splitext(filename)[0] + ".mtl"
+
+    with open(mtl_filename, 'w') as mtl_file:
+        for m in materials:
+            material_id = m["material_id"]
+            mtl_file.write(f"newmtl {material_id}\n")
+            for color in m["colors"]:
+                r, g, b, a = color[0]
+                mtl_file.write(f"Kd {r} {g} {b}\n")
+
     with open(filename, 'w') as f:
+        f.write(f'mtllib {mtl_filename}\n')
+        for m in materials:
+            f.write(f'usemtl {m["material_id"]}\n')
         for v in vertices:
             f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
             f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
+        for m in materials:
+            for i, uv_images in enumerate(m["uv_data"]):
+                for j, (texname, _) in enumerate(uv_images):
+                    f.write(f'vt {j+1} {i+1}\n')
         for i in range(0, len(indices), 3):
             f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
 
