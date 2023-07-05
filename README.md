@@ -3,11 +3,17 @@ SGM to OBJ converter for Rayne SGM files
 
 Made by reversing the SGM Exporter from [uberpixel/SGM-file-format](https://github.com/uberpixel/SGM-file-format)
 
-## Usage
+## Command Line
 
 `python sgm2obj.py [-h] input_file.sgm [output_file.obj]`
 
 If no output file is provided, it will use the input file name and replace the extension with .obj and .mtl
+
+## Blender Importer
+
+The Plugin for 2.8x and higher can be found in `BlenderImport2_8x\io_import_sgm.py`<br>
+I took the easy way out rather than importing the model myself, it converts to .obj/.mtl using the same functions and uses the built in .obj importer.<br>
+This means there will be .obj and .mtl files left in the same directory as the imported .smg model.
 
 # Info
 
