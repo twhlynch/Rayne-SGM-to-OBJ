@@ -20,6 +20,7 @@ def read_sgm(filename):
     with open(filename, "rb") as file:
         version = struct.unpack('<L B', file.read(5))
         print(version)
+
         num_materials = struct.unpack('<B', file.read(1))[0]
         materials = []
         for _ in range(num_materials):
@@ -42,12 +43,12 @@ def read_sgm(filename):
                 color_id = struct.unpack('<B', file.read(1))[0]
                 color = struct.unpack('<ffff', file.read(16))
                 colors.append((color, color_id))
-
             materials.append({
                 'material_id': material_id,
                 'uv_data': uv_data,
                 'colors': colors
             })
+
         num_meshes = struct.unpack('<B', file.read(1))[0]
         meshes = [] 
         index_offset = 0 # for multiple meshes
@@ -80,6 +81,7 @@ def read_sgm(filename):
                     weights = struct.unpack('<ffff', file.read(16))
                     bones = struct.unpack('<ffff', file.read(16))
                 vertices.append((position, normal, uvs, color, tangent, weights, bones))
+            
             index_count = struct.unpack('<I', file.read(4))[0]
             index_size = struct.unpack('<B', file.read(1))[0]
             for _ in range(index_count):
@@ -88,12 +90,14 @@ def read_sgm(filename):
                 else:
                     index = struct.unpack('<H', file.read(2))[0]
                 indices.append(index + index_offset)
+
             index_offset += len(vertices)
             meshes.append({"mesh_id": mesh_id, "material_id": material_id, "vertices": vertices, "indices": indices})
+            
     return [meshes, materials]
 
 def write_obj(meshes, materials, filename):
-    mtl_filename = os.path.splitext(filename)[0] + ".mtl"
+    mtl_filename = f"{os.path.splitext(filename)[0]}.mtl"
 
     with open(mtl_filename, 'w') as mtl_file:
         for m in materials:
