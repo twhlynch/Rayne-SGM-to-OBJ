@@ -1,4 +1,4 @@
-import struct, os, argparse, json, base64, pygltflib
+import struct, os, argparse
 
 def main():
     parser = argparse.ArgumentParser(description='Convert SGM to OBJ format')
@@ -14,7 +14,7 @@ def main():
         output_file = args.output_file
 
     data = read_sgm(input_file)
-    write_obj(data[0], data[1], data[2], output_file)
+    write_obj(data[0], data[1], output_file)
 
 def read_sgm(filename):
     with open(filename, "rb") as file:
@@ -49,10 +49,11 @@ def read_sgm(filename):
                 'colors': colors
             })
         num_meshes = struct.unpack('<B', file.read(1))[0]
-        vertices = []
-        indices = [] 
+        meshes = [] 
         index_offset = 0 # for multiple meshes
         for _ in range(num_meshes):
+            vertices = []
+            indices = []
             mesh_id = struct.unpack('<B', file.read(1))[0]
             material_id = struct.unpack('<B', file.read(1))[0]
             vertex_count = struct.unpack('<I', file.read(4))[0]
@@ -87,33 +88,37 @@ def read_sgm(filename):
                 else:
                     index = struct.unpack('<H', file.read(2))[0]
                 indices.append(index + index_offset)
-            index_offset = len(vertices)
-    return [vertices, indices, materials]
+            index_offset += len(vertices)
+            meshes.append({"mesh_id": mesh_id, "material_id": material_id, "vertices": vertices, "indices": indices})
+    return [meshes, materials]
 
-def write_obj(vertices, indices, materials, filename):
+def write_obj(meshes, materials, filename):
     mtl_filename = os.path.splitext(filename)[0] + ".mtl"
 
     with open(mtl_filename, 'w') as mtl_file:
         for m in materials:
             material_id = m["material_id"]
             mtl_file.write(f"newmtl {material_id}\n")
-            for color in m["colors"]:
-                r, g, b, a = color[0]
-                mtl_file.write(f"Kd {r} {g} {b}\n")
+            color = m["colors"][0]
+            r, g, b, a = color[0]
+            mtl_file.write(f"Kd {r} {g} {b}\n")
 
     with open(filename, 'w') as f:
-        f.write(f'mtllib {mtl_filename}\n')
-        for m in materials:
-            f.write(f'usemtl {m["material_id"]}\n')
-        for v in vertices:
-            f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
-            f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
+        f.write(f'mtllib {os.path.basename(mtl_filename)}\n')
         for m in materials:
             for i, uv_images in enumerate(m["uv_data"]):
                 for j, (texname, _) in enumerate(uv_images):
                     f.write(f'vt {j+1} {i+1}\n')
-        for i in range(0, len(indices), 3):
-            f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
+        for m in meshes:
+            f.write(f"o {m['mesh_id']}\n")
+            f.write(f'usemtl {m["material_id"]}\n')
+            vertices = m["vertices"]
+            indices = m["indices"]
+            for v in vertices:
+                f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
+                f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
+            for i in range(0, len(indices), 3):
+                f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
 
 if __name__ == '__main__':
     main()
