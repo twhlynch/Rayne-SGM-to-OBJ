@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <title>SGM to OBJ | .index | twhlynch</title>
+        <meta name="description" content="Rayne SGM to OBJ">
+        <meta name="author" content="twhlynch">
+        <meta property="og:title" content="SGM to OBJ | .index | twhlynch">
+        <meta property="og:description" content="Rayne SGM to OBJ converter">
+        <meta property="og:site_name" content="SGM to OBJ | .index | twhlynch">
+        <meta property="og:locale" content="en_us">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="http://twhlynch.me/Rayne-SGM-to-OBJ">
+        <meta property="og:image" content="http://twhlynch.me/Rayne-SGM-to-OBJ/favicon.png">
+        <link rel="icon" href="favicon.png" type="image/png">
+        <link rel="stylesheet" href="https://twhlynch.me/styles.css">
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-BDS57RBQ3Q"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-BDS57RBQ3Q');
+        </script>
+    </head>
+    <body>
+        <nav><a href="https://twhlynch.me">Homepage</a></nav>
+        <main>
+            <h1>SGM to OBJ Converter</h1>
+            <form action="dotindex.pythonanywhere.com/sgm" method="post" enctype="multipart/form-data">
+                <label for="file">Select an SGM file:</label>
+                <input type="file" name="file" id="file" />
+                <br />
+                <input type="submit" value="Convert and Download" />
+            </form>
+        </main>
+    </body>
+</html>
