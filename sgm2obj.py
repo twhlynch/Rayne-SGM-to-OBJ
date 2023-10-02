@@ -1,7 +1,6 @@
 import struct, os, argparse
 
 def main():
-
     parser = argparse.ArgumentParser(description='Convert SGM to OBJ format')
     parser.add_argument('input_file', type=str, help='path to input file')
     parser.add_argument('output_file', nargs='?', type=str, help='path to output file')
@@ -107,7 +106,10 @@ def write_obj(meshes, materials, filename):
             color = m["colors"][0]
             r, g, b, a = color[0]
             mtl_file.write(f"Kd {r} {g} {b}\n")
-            mtl_file.write("map_Kd snowpole.png\n")#replace this with a way to add the corresponding uv image/dds file(blender does support this
+            
+            for uv_images in m["uv_data"]:
+                for texname, _ in uv_images:
+                    mtl_file.write(f"map_Kd {texname}\n")
 
     with open(filename, 'w') as f:
         f.write(f'mtllib {os.path.basename(mtl_filename)}\n')
@@ -119,9 +121,7 @@ def write_obj(meshes, materials, filename):
             for v in vertices:
                 f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
                 f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
-                if v[2] is  None:
-                  print(f"no uv: {v}")
-                else:
+                if v[2]:
                   f.write(f'vt {v[2][0][0]} {1-v[2][0][1]}\n')
             for i in range(0, len(indices), 3):
                 f.write(f'f {indices[i] + 1}/{indices[i] + 1}/{indices[i] + 1} {indices[i + 1] + 1}/{indices[i + 1] + 1}/{indices[i + 1] + 1} {indices[i + 2] + 1}/{indices[i + 2] + 1}/{indices[i + 2] + 1}\n')
