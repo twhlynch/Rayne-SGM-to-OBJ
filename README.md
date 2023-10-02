@@ -17,10 +17,13 @@ This means there will be .obj and .mtl files left in the same directory as the i
 
 # Info
 
+## Images
+Images will be in accompanying astc files. the exporter will reference them in the obj but you will need to convert the astc manually.
+To do this, download [astcenc](https://github.com/ARM-software/astc-encoder/releases) and run `.\astcenc-avx2.exe -ds texture.astc texture.png`.
+
 ## ~~Not converted~~
 - Animations Excluded
 - Only reads first color
-- Doesn't use texture
 
 ## SGM Specification
 
