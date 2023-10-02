@@ -122,7 +122,7 @@ def write_obj(meshes, materials, filename):
                 f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
                 f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
                 if v[2]:
-                  f.write(f'vt {v[2][0][0]} {1-v[2][0][1]}\n')
+                    f.write(f'vt {v[2][0][0]} {1-v[2][0][1]}\n')
             for i in range(0, len(indices), 3):
                 f.write(f'f {indices[i] + 1}/{indices[i] + 1}/{indices[i] + 1} {indices[i + 1] + 1}/{indices[i + 1] + 1}/{indices[i + 1] + 1} {indices[i + 2] + 1}/{indices[i + 2] + 1}/{indices[i + 2] + 1}\n')
 

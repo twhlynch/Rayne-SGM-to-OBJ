@@ -117,13 +117,13 @@ def write_obj(meshes, materials, filename):
             color = m["colors"][0]
             r, g, b, a = color[0]
             mtl_file.write(f"Kd {r} {g} {b}\n")
+            
+            for uv_images in m["uv_data"]:
+                for texname, _ in uv_images:
+                    mtl_file.write(f"map_Kd {texname}\n")
 
     with open(filename, 'w') as f:
         f.write(f'mtllib {os.path.basename(mtl_filename)}\n')
-        for m in materials:
-            for i, uv_images in enumerate(m["uv_data"]):
-                for j, (texname, _) in enumerate(uv_images):
-                    f.write(f'vt {j+1} {i+1}\n')
         for m in meshes:
             f.write(f"o {m['mesh_id']}\n")
             f.write(f'usemtl {m["material_id"]}\n')
@@ -132,8 +132,10 @@ def write_obj(meshes, materials, filename):
             for v in vertices:
                 f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
                 f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
+                if v[2]:
+                    f.write(f'vt {v[2][0][0]} {1-v[2][0][1]}\n')
             for i in range(0, len(indices), 3):
-                f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
+                f.write(f'f {indices[i] + 1}/{indices[i] + 1}/{indices[i] + 1} {indices[i + 1] + 1}/{indices[i + 1] + 1}/{indices[i + 1] + 1} {indices[i + 2] + 1}/{indices[i + 2] + 1}/{indices[i + 2] + 1}\n')
 
 def menu_func_import(self, context):
     self.layout.operator(ImportSGM.bl_idname, text="Rayne Model (.sgm)")
