@@ -65,4 +65,5 @@ To do this, download [astcenc](https://github.com/ARM-software/astc-encoder/rele
 
 # Credit
 
-- [Slin](https://github.com/Slin) for the original SGM Exporter and pointing out the fix for having multiple meshes.
+- [Slin](https://github.com/Slin) for the SGM Exporter and pointing out the fix for having multiple meshes.
+- [EBSpark](https://github.com/EB25Ball) for fixing UV mapping
