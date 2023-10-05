@@ -5,9 +5,11 @@ Made by reversing the SGM Exporter from [uberpixel/SGM-file-format](https://gith
 
 ## Command Line
 
-`python sgm2obj.py [-h] input_file.sgm [output_file.obj]`
+`python sgm2obj.py [-h] input_file.sgm [output_file.obj] [--texture TEXTURE.TYPE]`
 
 If no output file is provided, it will use the input file name and replace the extension with .obj and .mtl
+If no texture is provided it will use the one in the sgm with a .* extension and will have to be changed manually.
+Only set the texture if there is only one texture, otherwise it will override all other textures too.
 
 ## Blender Importer
 
@@ -66,4 +68,4 @@ To do this, download [astcenc](https://github.com/ARM-software/astc-encoder/rele
 # Credit
 
 - [Slin](https://github.com/Slin) for the SGM Exporter and pointing out the fix for having multiple meshes.
-- [EBSpark](https://github.com/EB25Ball) for fixing UV mapping
+- [EBSpark](https://github.com/EB25Ball) and [person4268](https://github.com/person4268) for fixing UV mapping with images.
