@@ -111,20 +111,22 @@ def write_obj(meshes, materials, filename):
     mtl_filename = f"{os.path.splitext(filename)[0]}.mtl"
 
     with open(mtl_filename, 'w') as mtl_file:
-        for m in materials:
+        for i,m in enumerate(materials):
             material_id = m["material_id"]
             mtl_file.write(f"newmtl {material_id}\n")
             color = m["colors"][0]
             r, g, b, a = color[0]
             mtl_file.write(f"Kd {r} {g} {b}\n")
-            
-            for uv_images in m["uv_data"]:
-                for texname, _ in uv_images:
-                    mtl_file.write(f"map_Kd {texname}\n")
+            mtl_file.write(f"d {a}\n")
+            if len(meshes[i]["vertices"][0][2]) > 0:
+                for uv_images in m["uv_data"]:
+                    for texname, _ in uv_images:
+                        mtl_file.write(f"map_Kd {texname}\n")
 
     with open(filename, 'w') as f:
         f.write(f'mtllib {os.path.basename(mtl_filename)}\n')
-        for m in meshes:
+        for (i,m) in enumerate(meshes):
+            print(f"Working on mesh {i}")
             f.write(f"o {m['mesh_id']}\n")
             f.write(f'usemtl {m["material_id"]}\n')
             vertices = m["vertices"]
@@ -132,11 +134,16 @@ def write_obj(meshes, materials, filename):
             for v in vertices:
                 f.write(f'v {v[0][0]} {v[0][1]} {v[0][2]}\n')
                 f.write(f'vn {v[1][0]} {v[1][1]} {v[1][2]}\n')
-                if v[2]:
+                if v[2] is None or len(v[2]) == 0:
+                    print(f"no uv: {v}")
+                    f.write(f'vt 0 0\n')
+                else:
                     f.write(f'vt {v[2][0][0]} {1-v[2][0][1]}\n')
             for i in range(0, len(indices), 3):
-                f.write(f'f {indices[i] + 1}/{indices[i] + 1}/{indices[i] + 1} {indices[i + 1] + 1}/{indices[i + 1] + 1}/{indices[i + 1] + 1} {indices[i + 2] + 1}/{indices[i + 2] + 1}/{indices[i + 2] + 1}\n')
-
+                if len(m["vertices"][0][2]) > 0:
+                    f.write(f'f {indices[i] + 1}/{indices[i] + 1}/{indices[i] + 1} {indices[i + 1] + 1}/{indices[i + 1] + 1}/{indices[i + 1] + 1} {indices[i + 2] + 1}/{indices[i + 2] + 1}/{indices[i + 2] + 1}\n')
+                else:
+                    f.write(f'f {indices[i] + 1}//{indices[i] + 1} {indices[i + 1] + 1}//{indices[i + 1] + 1} {indices[i + 2] + 1}//{indices[i + 2] + 1}\n')
 def menu_func_import(self, context):
     self.layout.operator(ImportSGM.bl_idname, text="Rayne Model (.sgm)")
 
